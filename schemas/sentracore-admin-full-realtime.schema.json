@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sentracore-admin-full-realtime.schema.json",
+  "title": "SENTRACORE Full Admin Realtime State Patch",
+  "type": "object",
+  "description": "Partial state patch accepted by POST /admin/realtime-events and POST /admin/realtime-demo/tick.",
+  "additionalProperties": true,
+  "properties": {
+    "metrics": { "type": "object" },
+    "pipeline": { "type": "object" },
+    "workers": { "type": "array" },
+    "queues": { "type": "array" },
+    "vulnerabilities": { "type": "array" },
+    "aiModels": { "type": "array" },
+    "infrastructure": { "type": "array" },
+    "cicd": { "type": "array" },
+    "logs": { "type": "array" },
+    "chains": { "type": "array" }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sentracore.local/schemas/audit-finding.schema.json",
+  "title": "Sentracore Dummy Audit Finding",
+  "type": "object",
+  "required": [
+    "id",
+    "severity",
+    "category",
+    "title",
+    "description",
+    "recommendation",
+    "confidence",
+    "location"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low", "informational"]
+    },
+    "category": {
+      "type": "string",
+      "examples": ["reentrancy", "access-control", "integer-overflow", "unchecked-call"]
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "recommendation": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "location": {
+      "type": "object",
+      "required": ["file", "line", "function"],
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "function": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

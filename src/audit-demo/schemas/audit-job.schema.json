@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sentracore.local/schemas/audit-job.schema.json",
+  "title": "Sentracore Dummy Audit Job",
+  "type": "object",
+  "required": [
+    "jobId",
+    "projectName",
+    "chain",
+    "contractType",
+    "status",
+    "progress",
+    "currentStage",
+    "createdAt",
+    "updatedAt",
+    "worker",
+    "metrics",
+    "findings"
+  ],
+  "properties": {
+    "jobId": {
+      "type": "string",
+      "examples": ["audit_demo_001"]
+    },
+    "projectName": {
+      "type": "string",
+      "examples": ["Demo Smart Contract Audit"]
+    },
+    "chain": {
+      "type": "string",
+      "enum": ["ethereum", "solana", "polygon", "bsc", "arbitrum", "optimism", "multi-chain"]
+    },
+    "contractType": {
+      "type": "string",
+      "enum": ["solidity", "rust", "move", "vyper", "unknown"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["queued", "running", "completed", "failed", "cancelled"]
+    },
+    "progress": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "currentStage": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "worker_assigned",
+        "fetching_sources",
+        "parsing_contract",
+        "dependency_analysis",
+        "running_static_analysis",
+        "running_pattern_detection",
+        "running_ai_review",
+        "generating_report",
+        "completed",
+        "failed"
+      ]
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "worker": {
+      "type": "object",
+      "required": ["id", "status", "region"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["idle", "busy", "offline"]
+        },
+        "region": {
+          "type": "string"
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "required": [
+        "filesScanned",
+        "linesAnalyzed",
+        "findingsDetected",
+        "aiTokensUsed",
+        "estimatedRemainingSeconds"
+      ],
+      "properties": {
+        "filesScanned": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "linesAnalyzed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "findingsDetected": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "aiTokensUsed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "estimatedRemainingSeconds": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "./audit-finding.schema.json"
+      }
+    }
+  }
+}

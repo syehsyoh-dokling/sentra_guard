@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SENTRACORE — AI-Powered Blockchain Audit Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #07080a;
+  --bg1:       #0c0e11;
+  --surface:   rgba(14,17,22,0.85);
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.12);
+  --text:      #b8bfc9;
+  --head:      #f0f2f5;
+  --dim:       #40495a;
+  --amber:     #f5a623;
+  --amber-glow:rgba(245,166,35,0.18);
+  --amber-dim: rgba(245,166,35,0.08);
+  --ok:        #39d98a;
+  --crit:      #f03e3e;
+  --info:      #4da6ff;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ── CANVAS BG ── */
+#bg-canvas {
+  position: fixed; inset: 0;
+  z-index: 0; pointer-events: none;
+  opacity: .55;
+}
+
+/* ── NOISE OVERLAY ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: .4;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(7,8,10,0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.nav-logo {
+  display: flex; align-items: center; gap: 12px;
+  text-decoration: none;
+}
+.logo-hex {
+  width: 30px; height: 30px;
+  background: var(--amber);
+  clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  animation: hexspin 10s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes hexspin { to { transform: rotate(360deg); } }
+.logo-text {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px; letter-spacing: 4px; color: var(--head);
+}
+.logo-version {
+  font-size: 9px; color: var(--dim); letter-spacing: .1em;
+  padding: 2px 6px; border: 1px solid var(--border);
+  border-radius: 2px; margin-left: 4px;
+}
+
+.nav-links {
+  display: flex; align-items: center; gap: 32px;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 11px; color: var(--dim); text-decoration: none;
+  letter-spacing: .08em; text-transform: uppercase;
+  transition: color .2s;
+}
+.nav-links a:hover { color: var(--head); }
+
+.nav-cta {
+  display: flex; align-items: center; gap: 12px;
+}
+.btn-ghost {
+  padding: 8px 20px; border-radius: 2px;
+  border: 1px solid var(--border2);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; color: var(--text);
+  background: transparent; cursor: pointer;
+  letter-spacing: .06em; text-transform: uppercase;
+  transition: all .2s;
+}
+.btn-ghost:hover { border-color: var(--amber); color: var(--amber); background: var(--amber-dim); }
+
+.btn-primary {
+  padding: 8px 22px; border-radius: 2px;
+  border: 1px solid var(--amber);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; color: var(--bg);
+  background: var(--amber); cursor: pointer;
+  letter-spacing: .06em; text-transform: uppercase;
+  transition: all .2s; font-weight: 600;
+}
+.btn-primary:hover {
+  background: transparent; color: var(--amber);
+  box-shadow: 0 0 20px var(--amber-glow);
+}
+
+/* ── HERO ── */
+.hero {
+  position: relative; z-index: 2;
+  min-height: 100vh;
+  display: flex; align-items: center;
+  padding: 0 48px;
+  padding-top: 60px;
+}
+
+.hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 80px;
+  align-items: center;
+  max-width: 1240px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Left: copy */
+.hero-copy { animation: riseIn .8s cubic-bezier(.22,1,.36,1) both; }
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-eyebrow {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 10px; color: var(--amber);
+  letter-spacing: .18em; text-transform: uppercase;
+  margin-bottom: 24px;
+  animation: riseIn .6s .1s both;
+}
+.eyebrow-line {
+  width: 32px; height: 1px; background: var(--amber);
+}
+.eyebrow-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--amber); animation: blink 1.5s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+.hero-h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(64px, 7vw, 96px);
+  line-height: .92; letter-spacing: 2px;
+  color: var(--head);
+  margin-bottom: 28px;
+  animation: riseIn .7s .15s both;
+}
+.hero-h1 .accent { color: var(--amber); }
+.hero-h1 .line2 { display: block; }
+
+.hero-desc {
+  font-size: 13px; line-height: 1.8;
+  color: var(--dim); max-width: 520px;
+  margin-bottom: 40px;
+  animation: riseIn .7s .2s both;
+}
+.hero-desc strong { color: var(--text); font-weight: 500; }
+
+.hero-stats {
+  display: flex; gap: 40px;
+  margin-bottom: 44px;
+  animation: riseIn .7s .25s both;
+}
+.hstat { }
+.hstat-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px; letter-spacing: 1px;
+  color: var(--head); line-height: 1;
+}
+.hstat-label { font-size: 10px; color: var(--dim); letter-spacing: .1em; text-transform: uppercase; margin-top: 3px; }
+
+.hero-actions {
+  display: flex; align-items: center; gap: 16px;
+  animation: riseIn .7s .3s both;
+}
+.btn-launch {
+  padding: 14px 36px; border-radius: 2px;
+  border: 1px solid var(--amber);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px; font-weight: 600;
+  color: var(--bg); background: var(--amber);
+  cursor: pointer; letter-spacing: .1em;
+  text-transform: uppercase;
+  transition: all .25s;
+  position: relative; overflow: hidden;
+}
+.btn-launch::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.15) 50%, transparent 100%);
+  transform: translateX(-100%); transition: transform .4s;
+}
+.btn-launch:hover::before { transform: translateX(100%); }
+.btn-launch:hover { box-shadow: 0 0 40px var(--amber-glow), 0 0 80px rgba(245,166,35,.08); }
+
+.btn-outline-big {
+  padding: 14px 28px; border-radius: 2px;
+  border: 1px solid var(--border2);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px; color: var(--text);
+  background: transparent; cursor: pointer;
+  letter-spacing: .08em; text-transform: uppercase;
+  transition: all .2s;
+}
+.btn-outline-big:hover { border-color: var(--border2); color: var(--head); background: rgba(255,255,255,.03); }
+
+/* ── LOGIN PANEL ── */
+.login-panel {
+  animation: panelIn .9s .1s cubic-bezier(.22,1,.36,1) both;
+  position: relative;
+}
+@keyframes panelIn {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.login-card {
+  background: rgba(12,14,17,0.92);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 40px 36px;
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  position: relative;
+  overflow: hidden;
+}
+/* amber top accent */
+.login-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--amber) 40%, var(--amber) 60%, transparent);
+}
+/* ambient glow */
+.login-card::after {
+  content: ''; position: absolute;
+  top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, var(--amber-glow) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.lc-header { margin-bottom: 28px; }
+.lc-tag {
+  font-size: 9px; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--amber); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.lc-tag::before { content: ''; width: 16px; height: 1px; background: var(--amber); }
+.lc-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px; letter-spacing: 2px; color: var(--head);
+}
+.lc-sub { font-size: 10px; color: var(--dim); margin-top: 4px; }
+
+/* Tab switcher */
+.lc-tabs {
+  display: flex; gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 3px; overflow: hidden;
+  margin-bottom: 28px;
+}
+.lc-tab {
+  flex: 1; padding: 9px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+  background: transparent; border: none; cursor: pointer;
+  color: var(--dim); transition: all .2s;
+}
+.lc-tab.active {
+  background: var(--amber-dim);
+  color: var(--amber);
+  border-bottom: 1px solid var(--amber);
+}
+
+/* Form */
+.form-group { margin-bottom: 18px; }
+.form-label {
+  display: flex; justify-content: space-between;
+  font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--dim); margin-bottom: 7px;
+}
+.form-label a { color: var(--amber); text-decoration: none; }
+.form-label a:hover { text-decoration: underline; }
+
+.form-input-wrap { position: relative; }
+.form-input {
+  width: 100%; padding: 11px 14px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px; color: var(--head);
+  outline: none; transition: border-color .2s, box-shadow .2s;
+  letter-spacing: .03em;
+}
+.form-input::placeholder { color: var(--dim); }
+.form-input:focus {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px var(--amber-dim);
+}
+.input-icon {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  font-size: 12px; color: var(--dim); cursor: pointer;
+  transition: color .2s;
+}
+.input-icon:hover { color: var(--amber); }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.btn-submit {
+  width: 100%; padding: 13px;
+  background: var(--amber); border: 1px solid var(--amber);
+  border-radius: 3px; cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px; font-weight: 600;
+  color: var(--bg); letter-spacing: .1em; text-transform: uppercase;
+  transition: all .25s; margin-top: 4px;
+  position: relative; overflow: hidden;
+}
+.btn-submit:hover {
+  background: transparent; color: var(--amber);
+  box-shadow: 0 0 30px var(--amber-glow);
+}
+.btn-submit:active { transform: scale(.99); }
+.btn-submit.loading { pointer-events: none; }
+.btn-submit.loading::after {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(0,0,0,.3);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 22px 0; font-size: 10px; color: var(--dim);
+}
+.divider::before,.divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+.oauth-row { display: flex; gap: 10px; }
+.btn-oauth {
+  flex: 1; padding: 10px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--border);
+  border-radius: 3px; cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; color: var(--dim);
+  transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 7px;
+}
+.btn-oauth:hover { border-color: var(--border2); color: var(--text); background: rgba(255,255,255,.05); }
+
+.lc-footer-text {
+  text-align: center; font-size: 10px; color: var(--dim);
+  margin-top: 20px;
+}
+.lc-footer-text a { color: var(--amber); text-decoration: none; }
+
+/* Error / success states */
+.form-error {
+  font-size: 9px; color: var(--crit);
+  margin-top: 5px; display: none;
+}
+.form-error.show { display: block; }
+.form-input.err { border-color: var(--crit); }
+
+/* Security badge */
+.security-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 20px; padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 9px; color: var(--dim);
+}
+.sec-icon { font-size: 11px; }
+.sec-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--ok); display: inline-block; animation: blink 2s infinite; margin-right: 4px; }
+
+/* ── FEATURES SECTION ── */
+.features {
+  position: relative; z-index: 2;
+  padding: 100px 48px;
+  max-width: 1240px; margin: 0 auto;
+}
+
+.section-label {
+  font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--amber); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-label::before { content: ''; width: 24px; height: 1px; background: var(--amber); }
+
+.section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(36px, 4vw, 52px);
+  letter-spacing: 2px; color: var(--head);
+  margin-bottom: 56px; max-width: 600px;
+  line-height: 1;
+}
+.section-title .accent { color: var(--amber); }
+
+.feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+
+.feat-card {
+  background: var(--bg1); padding: 32px 28px;
+  transition: background .2s;
+  position: relative; overflow: hidden;
+}
+.feat-card:hover { background: rgba(14,17,22,.98); }
+.feat-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--amber-glow), transparent);
+  opacity: 0; transition: opacity .3s;
+}
+.feat-card:hover::after { opacity: 1; }
+
+.feat-icon {
+  width: 40px; height: 40px; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; margin-bottom: 20px;
+  border: 1px solid var(--border);
+}
+.feat-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px; letter-spacing: 1px; color: var(--head);
+  margin-bottom: 10px;
+}
+.feat-desc { font-size: 11px; color: var(--dim); line-height: 1.8; }
+.feat-tag {
+  display: inline-block; margin-top: 14px;
+  padding: 3px 8px; border-radius: 2px;
+  font-size: 9px; letter-spacing: .08em;
+  background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,166,35,.2);
+}
+
+/* ── CHAINS SECTION ── */
+.chains-section {
+  position: relative; z-index: 2;
+  padding: 40px 48px 100px;
+  max-width: 1240px; margin: 0 auto;
+}
+.chain-row {
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
+.chain-pill {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px; border-radius: 3px;
+  background: var(--bg1); border: 1px solid var(--border);
+  font-size: 11px; color: var(--text);
+  transition: border-color .2s;
+}
+.chain-pill:hover { border-color: var(--border2); }
+.chain-dot2 { width: 8px; height: 8px; border-radius: 50%; }
+
+/* ── FOOTER ── */
+footer {
+  position: relative; z-index: 2;
+  border-top: 1px solid var(--border);
+  padding: 28px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 10px; color: var(--dim);
+}
+.footer-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px; letter-spacing: 3px; color: var(--dim);
+}
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { color: var(--dim); text-decoration: none; transition: color .2s; }
+.footer-links a:hover { color: var(--text); }
+
+/* ── MODAL OVERLAY (register) ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(7,8,10,.9);
+  backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .3s;
+}
+.modal-overlay.show { opacity: 1; pointer-events: all; }
+.modal-box {
+  background: var(--bg1); border: 1px solid var(--border2);
+  border-radius: 6px; padding: 40px; width: 440px;
+  position: relative;
+  transform: translateY(20px); transition: transform .3s;
+}
+.modal-overlay.show .modal-box { transform: translateY(0); }
+.modal-close {
+  position: absolute; top: 16px; right: 16px;
+  background: transparent; border: none;
+  color: var(--dim); font-size: 16px; cursor: pointer;
+  transition: color .2s;
+}
+.modal-close:hover { color: var(--head); }
+
+/* ── SCROLL indicator ── */
+.scroll-hint {
+  position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: var(--dim);
+  z-index: 10; animation: fadeInUp 1s 1s both;
+}
+@keyframes fadeInUp { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+.scroll-line {
+  width: 1px; height: 40px; background: linear-gradient(to bottom, var(--amber), transparent);
+  animation: scrollLine 1.6s infinite;
+}
+@keyframes scrollLine { 0%{transform:scaleY(0);transform-origin:top} 50%{transform:scaleY(1);transform-origin:top} 51%{transform:scaleY(1);transform-origin:bottom} 100%{transform:scaleY(0);transform-origin:bottom} }
+
+/* ── TICKER ── */
+.ticker-strip {
+  position: relative; z-index: 2;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg1);
+  overflow: hidden; height: 36px;
+  display: flex; align-items: center;
+}
+.ticker-inner {
+  display: flex; gap: 0;
+  animation: ticker 30s linear infinite;
+  white-space: nowrap;
+}
+@keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.tick-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 28px; font-size: 10px; border-right: 1px solid var(--border);
+}
+.tick-sym { color: var(--text); }
+.tick-val { color: var(--head); }
+.tick-chg { font-size: 9px; padding: 1px 5px; border-radius: 2px; }
+.tick-chg.up { background: rgba(57,217,138,.1); color: var(--ok); }
+.tick-chg.dn { background: rgba(240,62,62,.1); color: var(--crit); }
+</style>
+</head>
+<body>
+
+<!-- ── ANIMATED BG ── -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- ── NAV ── -->
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="logo-hex"></div>
+    <span class="logo-text">SENTRACORE</span>
+    <span class="logo-version">v2.14</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Platform</a></li>
+    <li><a href="#chains">Chains</a></li>
+    <li><a href="#">Docs</a></li>
+    <li><a href="#">Pricing</a></li>
+  </ul>
+  <div class="nav-cta">
+    <button class="btn-ghost" onclick="openLogin()">Sign In</button>
+    <button class="btn-primary" onclick="openRegister()">Request Access</button>
+  </div>
+</nav>
+
+<!-- ── TICKER ── -->
+<div class="ticker-strip" style="margin-top:60px;position:relative;z-index:2">
+  <div class="ticker-inner" id="ticker-inner">
+    <!-- injected by JS -->
+  </div>
+</div>
+
+<!-- ── HERO ── -->
+<section class="hero" style="min-height:calc(100vh - 96px);padding-top:0">
+  <div class="hero-inner">
+    <!-- Copy -->
+    <div class="hero-copy">
+      <div class="hero-eyebrow">
+        <div class="eyebrow-line"></div>
+        <span>AI-Powered Blockchain Security</span>
+        <div class="eyebrow-dot"></div>
+      </div>
+
+      <h1 class="hero-h1">
+        AUDIT<br>
+        <span class="accent">SMARTER.</span><br>
+        <span class="line2">SECURE FASTER.</span>
+      </h1>
+
+      <p class="hero-desc">
+        Sentracore is an <strong>AI-enhanced smart contract audit platform</strong> built on a distributed Rust backend — combining static analysis, LLM-powered vulnerability detection, and real-time pipeline processing across <strong>Ethereum, Solana, BNB Chain</strong>, and more.
+      </p>
+
+      <div class="hero-stats">
+        <div class="hstat">
+          <div class="hstat-val">1,847</div>
+          <div class="hstat-label">Audits / Day</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-val" style="color:var(--amber)">94.7%</div>
+          <div class="hstat-label">AI Accuracy</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-val">8.3s</div>
+          <div class="hstat-label">Avg Audit Time</div>
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <button class="btn-launch" onclick="openLogin()">→ Launch Dashboard</button>
+        <button class="btn-outline-big">View Architecture</button>
+      </div>
+    </div>
+
+    <!-- Login Panel -->
+    <div class="login-panel">
+      <div class="login-card">
+        <div class="lc-header">
+          <div class="lc-tag">Secure Access</div>
+          <div class="lc-title">SIGN IN</div>
+          <div class="lc-sub">Access your audit operations center</div>
+        </div>
+
+        <div class="lc-tabs">
+          <button class="lc-tab active" onclick="switchTab(this,'email')">Email</button>
+          <button class="lc-tab" onclick="switchTab(this,'wallet')">Wallet</button>
+          <button class="lc-tab" onclick="switchTab(this,'sso')">SSO</button>
+        </div>
+
+        <!-- Email Form -->
+        <div id="tab-email">
+          <div class="form-group">
+            <label class="form-label">
+              <span>Email Address</span>
+            </label>
+            <div class="form-input-wrap">
+              <input class="form-input" id="email-input" type="email" placeholder="admin@sentracore.io" autocomplete="email">
+              <span class="input-icon">@</span>
+            </div>
+            <div class="form-error" id="email-err">Invalid email address</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <span>Password</span>
+              <a href="#">Forgot password?</a>
+            </label>
+            <div class="form-input-wrap">
+              <input class="form-input" id="pass-input" type="password" placeholder="••••••••••••">
+              <span class="input-icon" onclick="togglePass()" id="pass-toggle">👁</span>
+            </div>
+            <div class="form-error" id="pass-err">Password must be at least 8 characters</div>
+          </div>
+          <button class="btn-submit" onclick="handleLogin()" id="login-btn">
+            <span id="login-btn-text">→ Sign In</span>
+          </button>
+        </div>
+
+        <!-- Wallet Form -->
+        <div id="tab-wallet" style="display:none">
+          <div style="text-align:center;padding:20px 0">
+            <div style="font-size:32px;margin-bottom:12px">🔗</div>
+            <div style="font-size:11px;color:var(--text);margin-bottom:20px">Connect your Web3 wallet to authenticate</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <button class="btn-oauth" style="justify-content:center;padding:12px" onclick="connectWallet('MetaMask')">
+                🦊 MetaMask
+              </button>
+              <button class="btn-oauth" style="justify-content:center;padding:12px" onclick="connectWallet('WalletConnect')">
+                🔵 WalletConnect
+              </button>
+              <button class="btn-oauth" style="justify-content:center;padding:12px" onclick="connectWallet('Phantom')">
+                👻 Phantom (Solana)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SSO Form -->
+        <div id="tab-sso" style="display:none">
+          <div class="form-group">
+            <label class="form-label"><span>Organization Domain</span></label>
+            <div class="form-input-wrap">
+              <input class="form-input" type="text" placeholder="yourcompany.com">
+              <span class="input-icon">⬡</span>
+            </div>
+          </div>
+          <button class="btn-submit" onclick="handleSSO()">→ Continue with SSO</button>
+        </div>
+
+        <div class="divider">or</div>
+
+        <div class="oauth-row">
+          <button class="btn-oauth">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.09.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12c0-5.523-4.477-10-10-10z"/></svg>
+            GitHub
+          </button>
+          <button class="btn-oauth">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            Google
+          </button>
+        </div>
+
+        <div class="security-row">
+          <span class="sec-icon">🔒</span>
+          <span><span class="sec-dot"></span>256-bit TLS · SOC2 Compliant · E2E Encrypted</span>
+        </div>
+
+        <div class="lc-footer-text">
+          Don't have access? <a href="#" onclick="openRegister()">Request an invite →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section class="features" id="features">
+  <div class="section-label">Core Platform</div>
+  <div class="section-title">BUILT FOR <span class="accent">SCALE.</span><br>DESIGNED FOR PRECISION.</div>
+
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(245,166,35,.08);border-color:rgba(245,166,35,.2)">⬡</div>
+      <div class="feat-name">Distributed Workers</div>
+      <p class="feat-desc">Async Rust worker pool built on Axum handles thousands of concurrent audit tasks with zero-copy processing and backpressure management.</p>
+      <span class="feat-tag">Rust · Axum · Async</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(176,110,255,.08);border-color:rgba(176,110,255,.2)">✦</div>
+      <div class="feat-name">AI / LLM Detection</div>
+      <p class="feat-desc">Multi-model AI pipeline integrating Claude, GPT-4o, and fine-tuned local models for 94.7% vulnerability detection accuracy.</p>
+      <span class="feat-tag" style="background:rgba(176,110,255,.1);color:#b06eff;border-color:rgba(176,110,255,.2)">LLM · Claude · GPT-4o</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(77,166,255,.08);border-color:rgba(77,166,255,.2)">◈</div>
+      <div class="feat-name">Queue Orchestration</div>
+      <p class="feat-desc">Redis-backed priority queues with intelligent routing, dead-letter handling, and real-time WebSocket status streams to all connected clients.</p>
+      <span class="feat-tag" style="background:rgba(77,166,255,.1);color:var(--info);border-color:rgba(77,166,255,.2)">Redis · WebSocket</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(57,217,138,.08);border-color:rgba(57,217,138,.2)">⬗</div>
+      <div class="feat-name">Multi-Chain Support</div>
+      <p class="feat-desc">Native integration with Ethereum EVM, Solana BPF bytecode, BNB Chain, Polygon — with extensible adapters for any new ecosystem.</p>
+      <span class="feat-tag" style="background:rgba(57,217,138,.1);color:var(--ok);border-color:rgba(57,217,138,.2)">ETH · SOL · BNB · MATIC</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(245,166,35,.08);border-color:rgba(245,166,35,.2)">☁</div>
+      <div class="feat-name">Distributed Storage</div>
+      <p class="feat-desc">Audit reports immutably stored on IPFS with S3 fallback, PostgreSQL indexing, and cryptographic audit trails for full provenance.</p>
+      <span class="feat-tag">S3 · IPFS · PostgreSQL</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(240,62,62,.08);border-color:rgba(240,62,62,.2)">⟁</div>
+      <div class="feat-name">CI/CD & Automation</div>
+      <p class="feat-desc">Fully containerized with Docker Compose, GitHub Actions pipelines, automated test coverage, and one-command deployment to any environment.</p>
+      <span class="feat-tag" style="background:rgba(240,62,62,.1);color:var(--crit);border-color:rgba(240,62,62,.2)">Docker · GH Actions</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── CHAINS ── -->
+<section class="chains-section" id="chains">
+  <div class="section-label">Supported Ecosystems</div>
+  <div class="section-title" style="margin-bottom:28px">MULTI-CHAIN<br><span class="accent">COVERAGE.</span></div>
+  <div class="chain-row">
+    <div class="chain-pill"><span class="chain-dot2" style="background:#627eea"></span>Ethereum</div>
+    <div class="chain-pill"><span class="chain-dot2" style="background:#9945ff"></span>Solana</div>
+    <div class="chain-pill"><span class="chain-dot2" style="background:#f0b90b"></span>BNB Chain</div>
+    <div class="chain-pill"><span class="chain-dot2" style="background:#8247e5"></span>Polygon</div>
+    <div class="chain-pill"><span class="chain-dot2" style="background:#ff4500"></span>Avalanche</div>
+    <div class="chain-pill"><span class="chain-dot2" style="background:#e84142"></span>Arbitrum</div>
+    <div class="chain-pill"><span class="chain-dot2" style="background:#ff0420"></span>Optimism</div>
+    <div class="chain-pill" style="color:var(--dim);border-style:dashed">+ More coming</div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <span class="footer-logo">SENTRACORE</span>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Security</a>
+    <a href="#">Status</a>
+    <a href="#">Docs</a>
+  </div>
+  <span>© 2026 Sentracore Systems. All rights reserved.</span>
+</footer>
+
+<!-- ── REGISTER MODAL ── -->
+<div class="modal-overlay" id="register-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeRegister()">✕</button>
+    <div class="lc-tag" style="font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);margin-bottom:8px;display:flex;align-items:center;gap:6px"><span style="width:16px;height:1px;background:var(--amber);display:inline-block"></span>New Account</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--head);margin-bottom:4px">REQUEST ACCESS</div>
+    <div style="font-size:10px;color:var(--dim);margin-bottom:24px">Sentracore is invite-only. We'll review your request within 24h.</div>
+    <div class="form-row" style="margin-bottom:16px">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label"><span>First Name</span></label>
+        <input class="form-input" type="text" placeholder="Arif">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label"><span>Last Name</span></label>
+        <input class="form-input" type="text" placeholder="Wibowo">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label"><span>Work Email</span></label>
+      <input class="form-input" type="email" placeholder="you@company.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label"><span>Use Case</span></label>
+      <input class="form-input" type="text" placeholder="Smart contract security, DeFi audits...">
+    </div>
+    <button class="btn-submit" onclick="handleRequestAccess()" id="req-btn">→ Submit Request</button>
+    <div style="font-size:9px;color:var(--dim);text-align:center;margin-top:14px">No spam. We'll only contact you about your access request.</div>
+  </div>
+</div>
+
+<script>
+// ── NODE GRAPH CANVAS ──
+(function(){
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, nodes=[], edges=[];
+  const NODE_COUNT = 55;
+  const AMBER = '#f5a623';
+  const BLUE  = '#4da6ff';
+  const DIM   = '#1a2030';
+
+  function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+  window.addEventListener('resize', resize); resize();
+
+  // Init nodes
+  for(let i=0;i<NODE_COUNT;i++){
+    nodes.push({
+      x: Math.random()*W, y: Math.random()*H,
+      vx:(Math.random()-.5)*.3, vy:(Math.random()-.5)*.3,
+      r: Math.random()*2+1,
+      color: Math.random()<.12 ? AMBER : Math.random()<.2 ? BLUE : DIM,
+      pulse: Math.random()*Math.PI*2,
+    });
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // edges
+    for(let i=0;i<nodes.length;i++){
+      for(let j=i+1;j<nodes.length;j++){
+        const a=nodes[i], b=nodes[j];
+        const dist=Math.hypot(a.x-b.x, a.y-b.y);
+        if(dist<160){
+          const alpha=(1-dist/160)*.18;
+          ctx.beginPath();
+          ctx.strokeStyle=`rgba(245,166,35,${alpha*0.6})`;
+          ctx.lineWidth=.5;
+          ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+        }
+      }
+    }
+    // nodes
+    nodes.forEach(n=>{
+      n.pulse+=.015;
+      const pulseFactor = .6+Math.sin(n.pulse)*.4;
+      ctx.beginPath();
+      ctx.arc(n.x,n.y,n.r*pulseFactor,0,Math.PI*2);
+      ctx.fillStyle=n.color;
+      ctx.fill();
+      // glow on amber nodes
+      if(n.color===AMBER){
+        ctx.beginPath();
+        ctx.arc(n.x,n.y,n.r*3,0,Math.PI*2);
+        ctx.fillStyle='rgba(245,166,35,0.05)';
+        ctx.fill();
+      }
+    });
+  }
+
+  function update(){
+    nodes.forEach(n=>{
+      n.x+=n.vx; n.y+=n.vy;
+      if(n.x<0||n.x>W) n.vx*=-1;
+      if(n.y<0||n.y>H) n.vy*=-1;
+    });
+  }
+
+  function loop(){ draw(); update(); requestAnimationFrame(loop); }
+  loop();
+})();
+
+// ── TICKER ──
+const tickers=[
+  {sym:'ETH',val:'Rp 57,3Jt',chg:'+0.4%',up:true},
+  {sym:'BTC',val:'Rp 1,06M',chg:'+2.4%',up:true},
+  {sym:'SOL',val:'Rp 2,4Jt',chg:'+5.1%',up:true},
+  {sym:'BNB',val:'Rp 9,1Jt',chg:'+1.2%',up:true},
+  {sym:'MATIC',val:'Rp 14.2K',chg:'-0.9%',up:false},
+  {sym:'ARB',val:'Rp 18.7K',chg:'+3.2%',up:true},
+  {sym:'AVAX',val:'Rp 625K',chg:'-1.4%',up:false},
+  {sym:'AUDITS',val:'1,847 / day',chg:'↑12.4%',up:true},
+  {sym:'AI-ACC',val:'94.7%',chg:'↑2.1%',up:true},
+  {sym:'WORKERS',val:'12/16',chg:'ONLINE',up:true},
+];
+// duplicate for seamless loop
+const inner=document.getElementById('ticker-inner');
+[...tickers,...tickers].forEach(t=>{
+  const el=document.createElement('div');
+  el.className='tick-item';
+  el.innerHTML=`<span class="tick-sym">${t.sym}</span><span class="tick-val">${t.val}</span><span class="tick-chg ${t.up?'up':'dn'}">${t.chg}</span>`;
+  inner.appendChild(el);
+});
+
+// ── LOGIN TABS ──
+function switchTab(btn, tab){
+  document.querySelectorAll('.lc-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  ['tab-email','tab-wallet','tab-sso'].forEach(id=>{
+    document.getElementById(id).style.display='none';
+  });
+  document.getElementById('tab-'+tab).style.display='block';
+}
+
+// ── PASSWORD TOGGLE ──
+function togglePass(){
+  const inp=document.getElementById('pass-input');
+  const icon=document.getElementById('pass-toggle');
+  if(inp.type==='password'){inp.type='text';icon.textContent='🔒';}
+  else{inp.type='password';icon.textContent='👁';}
+}
+
+// ── LOGIN HANDLER ──
+function handleLogin(){
+  const email=document.getElementById('email-input');
+  const pass=document.getElementById('pass-input');
+  const emailErr=document.getElementById('email-err');
+  const passErr=document.getElementById('pass-err');
+  let valid=true;
+  // reset
+  email.classList.remove('err'); emailErr.classList.remove('show');
+  pass.classList.remove('err'); passErr.classList.remove('show');
+
+  if(!email.value || !/\S+@\S+\.\S+/.test(email.value)){
+    email.classList.add('err'); emailErr.classList.add('show'); valid=false;
+  }
+  if(!pass.value || pass.value.length<6){
+    pass.classList.add('err'); passErr.classList.add('show'); valid=false;
+  }
+  if(!valid) return;
+
+  const btn=document.getElementById('login-btn');
+  const txt=document.getElementById('login-btn-text');
+  btn.classList.add('loading');
+  txt.textContent='Authenticating...';
+  setTimeout(()=>{
+    txt.textContent='✓ Redirecting to Dashboard';
+    btn.style.background='var(--ok)'; btn.style.borderColor='var(--ok)';
+    setTimeout(()=>{
+      // simulate redirect
+      txt.textContent='→ Sign In';
+      btn.style.background=''; btn.style.borderColor='';
+      btn.classList.remove('loading');
+    }, 2000);
+  }, 1600);
+}
+
+// ── WALLET CONNECT ──
+function connectWallet(name){
+  alert(`Connecting to ${name}... (Web3 provider integration required in production)`);
+}
+
+// ── SSO ──
+function handleSSO(){
+  alert('Redirecting to your organization SSO provider...');
+}
+
+// ── REGISTER MODAL ──
+function openRegister(){
+  document.getElementById('register-modal').classList.add('show');
+}
+function closeRegister(){
+  document.getElementById('register-modal').classList.remove('show');
+}
+function openLogin(){
+  // scroll to hero / focus email
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(()=>document.getElementById('email-input').focus(), 400);
+}
+document.getElementById('register-modal').addEventListener('click',function(e){
+  if(e.target===this) closeRegister();
+});
+
+function handleRequestAccess(){
+  const btn=document.getElementById('req-btn');
+  btn.textContent='Submitting...';
+  setTimeout(()=>{
+    btn.textContent='✓ Request Received — We\'ll be in touch!';
+    btn.style.background='var(--ok)'; btn.style.borderColor='var(--ok)';
+    setTimeout(closeRegister, 2200);
+  }, 1400);
+}
+</script>
+</body>
+</html>

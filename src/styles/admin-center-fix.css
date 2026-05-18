@@ -1,0 +1,120 @@
+﻿/* ============================================================
+   Admin Operations Center — Center Alignment Override
+   Tujuan:
+   - Sidebar tetap fixed di kiri.
+   - Konten dashboard dibuat center di area kanan sidebar.
+   - Tidak mengubah logic React/TypeScript.
+   ============================================================ */
+
+:root {
+  --admin-sidebar-width: 250px;
+  --admin-content-max: 1120px;
+  --admin-content-pad: 24px;
+}
+
+/* Target umum untuk layout dashboard yang punya sidebar kiri */
+.admin-operations-center,
+.operations-center,
+.operations-shell,
+.dashboard-shell,
+.admin-shell {
+  width: 100%;
+}
+
+/* Override aman untuk main/content area dashboard */
+.admin-operations-center main,
+.operations-center main,
+.operations-shell main,
+.dashboard-shell main,
+.admin-shell main,
+.admin-main,
+.operations-main,
+.dashboard-main,
+main[class*="admin"],
+main[class*="operation"],
+div[class*="admin-main"],
+div[class*="operation-main"],
+div[class*="dashboard-main"] {
+  box-sizing: border-box;
+}
+
+/* Desktop: center di area setelah sidebar */
+@media (min-width: 1024px) {
+  .admin-operations-center main,
+  .operations-center main,
+  .operations-shell main,
+  .dashboard-shell main,
+  .admin-shell main,
+  .admin-main,
+  .operations-main,
+  .dashboard-main,
+  main[class*="admin"],
+  main[class*="operation"],
+  div[class*="admin-main"],
+  div[class*="operation-main"],
+  div[class*="dashboard-main"] {
+    width: min(
+      var(--admin-content-max),
+      calc(100vw - var(--admin-sidebar-width) - (var(--admin-content-pad) * 2))
+    ) !important;
+
+    max-width: var(--admin-content-max) !important;
+
+    margin-left: calc(
+      var(--admin-sidebar-width) +
+      max(
+        var(--admin-content-pad),
+        ((100vw - var(--admin-sidebar-width) - min(var(--admin-content-max), calc(100vw - var(--admin-sidebar-width) - (var(--admin-content-pad) * 2)))) / 2)
+      )
+    ) !important;
+
+    margin-right: auto !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Kalau konten utama memakai fixed left/margin-left 250/270px, paksa supaya ikut formula center */
+  [style*="margin-left: 250px"],
+  [style*="marginLeft: 250"],
+  [style*="left: 250px"],
+  [style*="margin-left:250px"],
+  [style*="left:250px"] {
+    margin-left: calc(
+      var(--admin-sidebar-width) +
+      max(
+        var(--admin-content-pad),
+        ((100vw - var(--admin-sidebar-width) - min(var(--admin-content-max), calc(100vw - var(--admin-sidebar-width) - (var(--admin-content-pad) * 2)))) / 2)
+      )
+    ) !important;
+  }
+}
+
+/* Large desktop: sedikit lebih lapang tapi tetap center */
+@media (min-width: 1440px) {
+  :root {
+    --admin-content-max: 1140px;
+  }
+}
+
+/* Mobile/tablet: kembali full width setelah sidebar tidak dominan */
+@media (max-width: 1023px) {
+  .admin-operations-center main,
+  .operations-center main,
+  .operations-shell main,
+  .dashboard-shell main,
+  .admin-shell main,
+  .admin-main,
+  .operations-main,
+  .dashboard-main,
+  main[class*="admin"],
+  main[class*="operation"],
+  div[class*="admin-main"],
+  div[class*="operation-main"],
+  div[class*="dashboard-main"] {
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}

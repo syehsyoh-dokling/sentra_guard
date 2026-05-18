@@ -1,0 +1,49 @@
+{
+  "scenario": "SENTRACORE realtime audit operations demo",
+  "intervalMs": 1800,
+  "autoProcess": true,
+  "events": [
+    {
+      "chain": "ethereum",
+      "target": "DemoVault",
+      "sourceType": "solidity",
+      "priority": "critical",
+      "note": "Simulate high-priority Ethereum vault audit"
+    },
+    {
+      "chain": "solana",
+      "target": "SolanaEscrowProgram",
+      "sourceType": "rust",
+      "priority": "high",
+      "note": "Simulate Solana program audit"
+    },
+    {
+      "chain": "polygon",
+      "target": "RewardDistributor",
+      "sourceType": "solidity",
+      "priority": "normal",
+      "note": "Simulate reward contract audit"
+    },
+    {
+      "chain": "bsc",
+      "target": "BridgeRouter",
+      "sourceType": "solidity",
+      "priority": "critical",
+      "note": "Simulate bridge routing audit"
+    },
+    {
+      "chain": "ethereum",
+      "target": "UpgradeableProxy",
+      "sourceType": "solidity",
+      "priority": "high",
+      "note": "Simulate proxy upgradeability audit"
+    },
+    {
+      "chain": "solana",
+      "target": "TokenVestingProgram",
+      "sourceType": "rust",
+      "priority": "normal",
+      "note": "Simulate vesting program audit"
+    }
+  ]
+}

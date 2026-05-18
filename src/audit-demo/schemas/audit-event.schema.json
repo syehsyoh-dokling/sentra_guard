@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sentracore.local/schemas/audit-event.schema.json",
+  "title": "Sentracore Dummy Realtime Audit Event",
+  "type": "object",
+  "required": [
+    "eventId",
+    "jobId",
+    "type",
+    "stage",
+    "status",
+    "progress",
+    "message",
+    "timestamp"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "examples": ["evt_001"]
+    },
+    "jobId": {
+      "type": "string",
+      "examples": ["audit_demo_001"]
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "audit.created",
+        "audit.progress",
+        "audit.worker_assigned",
+        "audit.finding.detected",
+        "audit.ai_analysis",
+        "audit.report_generation",
+        "audit.completed",
+        "audit.failed"
+      ]
+    },
+    "stage": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["queued", "running", "completed", "failed", "cancelled"]
+    },
+    "progress": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "message": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finding": {
+      "$ref": "./audit-finding.schema.json"
+    },
+    "summary": {
+      "$ref": "./audit-summary.schema.json"
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "scenario": "SENTRACORE full dashboard realtime demo",
+  "intervalMs": 1800,
+  "frames": [
+    {
+      "metrics": { "audits24h": 1888, "activeWorkers": 13, "queueDepth": 241, "vulnsDetected": 41, "criticalVulns": 4, "avgAuditTimeSec": 7.9, "aiAccuracy": 95.2 },
+      "pipeline": { "ingest": 152, "parse": 133, "staticAnalysis": 104, "aiScan": 82, "vulnScoring": 67, "reportStore": 63 },
+      "logs": [
+        { "ts": "15:00:01", "lvl": "info", "msg": "Realtime JSON frame #1 applied to admin dashboard" },
+        { "ts": "15:00:02", "lvl": "ok", "msg": "Worker fleet scaled to 13 active workers" }
+      ]
+    },
+    {
+      "metrics": { "audits24h": 1931, "activeWorkers": 14, "queueDepth": 198, "vulnsDetected": 46, "criticalVulns": 4, "avgAuditTimeSec": 7.4, "aiAccuracy": 95.8 },
+      "pipeline": { "ingest": 171, "parse": 149, "staticAnalysis": 119, "aiScan": 91, "vulnScoring": 73, "reportStore": 70 },
+      "queues": [
+        { "name": "audit:eth:high", "depth": 54, "cap": 200, "proc": 498, "tone": "crit" },
+        { "name": "audit:sol:normal", "depth": 43, "cap": 200, "proc": 369, "tone": "warn" },
+        { "name": "audit:eth:normal", "depth": 32, "cap": 200, "proc": 341, "tone": "info" },
+        { "name": "audit:bnb:normal", "depth": 28, "cap": 200, "proc": 250, "tone": "ok" },
+        { "name": "report:generate", "depth": 18, "cap": 100, "proc": 121, "tone": "ok" },
+        { "name": "storage:ipfs", "depth": 21, "cap": 100, "proc": 118, "tone": "warn" }
+      ],
+      "logs": [
+        { "ts": "15:00:05", "lvl": "ai", "msg": "LLM triage increased confidence on reentrancy detector to 98.1%" },
+        { "ts": "15:00:06", "lvl": "ok", "msg": "Queue depth reduced after worker scale-up" }
+      ]
+    },
+    {
+      "metrics": { "audits24h": 2014, "activeWorkers": 15, "queueDepth": 144, "vulnsDetected": 52, "criticalVulns": 5, "avgAuditTimeSec": 6.8, "aiAccuracy": 96.1 },
+      "pipeline": { "ingest": 188, "parse": 168, "staticAnalysis": 138, "aiScan": 103, "vulnScoring": 89, "reportStore": 84 },
+      "vulnerabilities": [
+        { "severity": "critical", "type": "Bridge Replay", "contract": "0xbd41...caa9", "chain": "ETH", "by": "AI+Static", "time": "now", "status": "Open" },
+        { "severity": "critical", "type": "Authority Bypass", "contract": "9xSol...41aa", "chain": "SOL", "by": "LLM Scan", "time": "1m ago", "status": "Open" },
+        { "severity": "high", "type": "Unchecked Call", "contract": "0x12bc...9a4f", "chain": "ETH", "by": "AST Engine", "time": "2m ago", "status": "Review" },
+        { "severity": "medium", "type": "Tx Origin", "contract": "0x77ef...3310", "chain": "MATIC", "by": "Static", "time": "4m ago", "status": "Closed" }
+      ],
+      "logs": [
+        { "ts": "15:00:10", "lvl": "err", "msg": "Critical Bridge Replay candidate inserted from JSON realtime demo" },
+        { "ts": "15:00:11", "lvl": "warn", "msg": "Manual security review recommended for cross-chain bridge route" }
+      ]
+    },
+    {
+      "metrics": { "audits24h": 2102, "activeWorkers": 15, "queueDepth": 112, "vulnsDetected": 58, "criticalVulns": 5, "avgAuditTimeSec": 6.2, "aiAccuracy": 96.5 },
+      "pipeline": { "ingest": 202, "parse": 181, "staticAnalysis": 151, "aiScan": 118, "vulnScoring": 96, "reportStore": 93 },
+      "aiModels": [
+        { "label": "Claude Sonnet", "provider": "Anthropic - Vuln analysis", "latency": "1.1s avg", "req": "1032 req/24h", "health": "Healthy", "tone": "ok" },
+        { "label": "GPT-4o", "provider": "OpenAI - Code reasoning", "latency": "2.4s avg", "req": "801 req/24h", "health": "Healthy", "tone": "ok" },
+        { "label": "Local Llama-3.1", "provider": "Self-hosted - Fast triage", "latency": "0.5s avg", "req": "3.9k req/24h", "health": "Healthy", "tone": "ok" }
+      ],
+      "logs": [
+        { "ts": "15:00:15", "lvl": "ok", "msg": "AI model routing normalized after fallback recovery" },
+        { "ts": "15:00:16", "lvl": "ai", "msg": "All LLM engines healthy after JSON frame #4" }
+      ]
+    }
+  ]
+}

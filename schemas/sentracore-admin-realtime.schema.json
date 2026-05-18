@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sentracore-admin-realtime.schema.json",
+  "title": "SENTRACORE Admin Realtime Audit Demo Payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["scenario", "intervalMs", "autoProcess", "events"],
+  "properties": {
+    "scenario": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Demo scenario name shown in logs/report."
+    },
+    "intervalMs": {
+      "type": "integer",
+      "minimum": 300,
+      "maximum": 10000,
+      "description": "Delay between demo event submissions."
+    },
+    "autoProcess": {
+      "type": "boolean",
+      "description": "If true, every created audit job is immediately processed by dummy backend pipeline."
+    },
+    "events": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["chain", "target", "sourceType", "priority"],
+        "properties": {
+          "chain": {
+            "type": "string",
+            "enum": ["ethereum", "solana", "polygon", "bsc"]
+          },
+          "target": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Smart contract name or address."
+          },
+          "sourceType": {
+            "type": "string",
+            "enum": ["solidity", "rust", "vyper", "bytecode", "program"]
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["low", "normal", "high", "critical"]
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

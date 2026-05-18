@@ -1,0 +1,140 @@
+﻿[
+  {
+    "eventId": "evt_001",
+    "jobId": "audit_demo_001",
+    "type": "audit.created",
+    "stage": "queued",
+    "status": "queued",
+    "progress": 3,
+    "message": "Audit job created and added to processing queue.",
+    "timestamp": "2026-05-14T09:10:01.000Z"
+  },
+  {
+    "eventId": "evt_002",
+    "jobId": "audit_demo_001",
+    "type": "audit.worker_assigned",
+    "stage": "worker_assigned",
+    "status": "running",
+    "progress": 12,
+    "message": "Worker worker-01 assigned to this audit job.",
+    "timestamp": "2026-05-14T09:10:04.000Z"
+  },
+  {
+    "eventId": "evt_003",
+    "jobId": "audit_demo_001",
+    "type": "audit.progress",
+    "stage": "fetching_sources",
+    "status": "running",
+    "progress": 20,
+    "message": "Fetching submitted smart contract sources and metadata.",
+    "timestamp": "2026-05-14T09:10:06.000Z"
+  },
+  {
+    "eventId": "evt_004",
+    "jobId": "audit_demo_001",
+    "type": "audit.progress",
+    "stage": "parsing_contract",
+    "status": "running",
+    "progress": 31,
+    "message": "Parsing Solidity contract and dependency structure.",
+    "timestamp": "2026-05-14T09:10:10.000Z"
+  },
+  {
+    "eventId": "evt_005",
+    "jobId": "audit_demo_001",
+    "type": "audit.progress",
+    "stage": "dependency_analysis",
+    "status": "running",
+    "progress": 43,
+    "message": "Analyzing imports, inheritance tree, and external dependencies.",
+    "timestamp": "2026-05-14T09:10:14.000Z"
+  },
+  {
+    "eventId": "evt_006",
+    "jobId": "audit_demo_001",
+    "type": "audit.finding.detected",
+    "stage": "running_static_analysis",
+    "status": "running",
+    "progress": 56,
+    "message": "High severity reentrancy pattern detected.",
+    "timestamp": "2026-05-14T09:10:18.000Z",
+    "finding": {
+      "id": "finding-001",
+      "severity": "high",
+      "category": "reentrancy",
+      "title": "Potential reentrancy vulnerability",
+      "description": "External call is performed before state update.",
+      "recommendation": "Apply checks-effects-interactions pattern or use reentrancy guard.",
+      "confidence": 0.86,
+      "location": {
+        "file": "Vault.sol",
+        "line": 88,
+        "function": "withdraw"
+      }
+    }
+  },
+  {
+    "eventId": "evt_007",
+    "jobId": "audit_demo_001",
+    "type": "audit.finding.detected",
+    "stage": "running_pattern_detection",
+    "status": "running",
+    "progress": 65,
+    "message": "Medium severity access-control issue detected.",
+    "timestamp": "2026-05-14T09:10:22.000Z",
+    "finding": {
+      "id": "finding-002",
+      "severity": "medium",
+      "category": "access-control",
+      "title": "Missing role validation",
+      "description": "Sensitive function may be callable without sufficient authorization.",
+      "recommendation": "Restrict sensitive functions using role-based access control.",
+      "confidence": 0.78,
+      "location": {
+        "file": "Vault.sol",
+        "line": 132,
+        "function": "setFee"
+      }
+    }
+  },
+  {
+    "eventId": "evt_008",
+    "jobId": "audit_demo_001",
+    "type": "audit.ai_analysis",
+    "stage": "running_ai_review",
+    "status": "running",
+    "progress": 78,
+    "message": "AI assistant reviewing exploitability and mitigation guidance.",
+    "timestamp": "2026-05-14T09:10:27.000Z"
+  },
+  {
+    "eventId": "evt_009",
+    "jobId": "audit_demo_001",
+    "type": "audit.report_generation",
+    "stage": "generating_report",
+    "status": "running",
+    "progress": 91,
+    "message": "Generating audit report, risk score, and finding summary.",
+    "timestamp": "2026-05-14T09:10:33.000Z"
+  },
+  {
+    "eventId": "evt_010",
+    "jobId": "audit_demo_001",
+    "type": "audit.completed",
+    "stage": "completed",
+    "status": "completed",
+    "progress": 100,
+    "message": "Audit completed successfully. Report is ready.",
+    "timestamp": "2026-05-14T09:10:40.000Z",
+    "summary": {
+      "riskScore": 72,
+      "riskLevel": "high",
+      "totalFindings": 4,
+      "critical": 0,
+      "high": 1,
+      "medium": 2,
+      "low": 1,
+      "informational": 0
+    }
+  }
+]

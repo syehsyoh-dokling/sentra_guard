@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sentracore.local/schemas/audit-summary.schema.json",
+  "title": "Sentracore Dummy Audit Summary",
+  "type": "object",
+  "required": [
+    "riskScore",
+    "riskLevel",
+    "totalFindings",
+    "critical",
+    "high",
+    "medium",
+    "low",
+    "informational"
+  ],
+  "properties": {
+    "riskScore": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "riskLevel": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low", "informational"]
+    },
+    "totalFindings": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "critical": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "high": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "medium": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "low": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "informational": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}
