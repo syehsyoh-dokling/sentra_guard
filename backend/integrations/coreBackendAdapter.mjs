@@ -188,8 +188,8 @@ export function buildCoreDashboardState(baseState, summary) {
       reportStore: (baseState.pipeline.reportStore || 0) + payments
     },
     queues: [
-      { name: "core:audit_jobs:created", depth: queuedJobs, cap: 80, proc: auditJobs, tone: queuedJobs > 10 ? "warn" : "ok" },
-      { name: "core:app2_transfer", depth: Math.max(0, auditJobs - (counts.transferredJobs || 0)), cap: 80, proc: counts.transferredJobs || 0, tone: "info" },
+      { name: "sentracore:audit_jobs:created", depth: queuedJobs, cap: 80, proc: auditJobs, tone: queuedJobs > 10 ? "warn" : "ok" },
+      { name: "sentracore:sentraguard_transfer", depth: Math.max(0, auditJobs - (counts.transferredJobs || 0)), cap: 80, proc: counts.transferredJobs || 0, tone: "info" },
       ...baseState.queues.slice(2)
     ],
     logs: [

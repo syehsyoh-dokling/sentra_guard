@@ -127,7 +127,7 @@ function buildRolePrompt({ sourceCode, findings, prompts }) {
     prompts.triagePrompt || "Classify severity and explain exploitability concisely.",
     prompts.remediationPrompt || "Suggest minimal secure patches and regression tests.",
     prompts.reportPrompt || "Write concise audit reports with executive summary, confirmed findings, reproduction steps, and remediation guidance.",
-    "You are the AI analysis layer in Sentracore APP2. Review detector output and source excerpt.",
+    "You are the AI analysis layer in SentraGuard. Review detector output and source excerpt.",
     "Return ONLY valid JSON using this exact shape:",
     JSON.stringify({
       summary: "short audit summary",

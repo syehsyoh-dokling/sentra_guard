@@ -58,7 +58,7 @@ function normalizeChain(chain) {
 }
 
 export async function createAuditJob(input = {}) {
-  const externalId = input.externalId || input.coreJobId || input.app1JobId || null;
+  const externalId = input.externalId || input.coreJobId || null;
   if (externalId) {
     const existing = Array.from(jobs.values()).find((job) => job.externalId === externalId);
     if (existing) return getAuditJob(existing.id);

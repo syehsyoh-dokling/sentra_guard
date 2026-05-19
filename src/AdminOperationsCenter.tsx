@@ -321,7 +321,7 @@ const DEFAULT_RUNTIME_CONFIG: RuntimeConfig = {
   ciWebhookSecret: "SET_IN_SERVER_ENV:DEPLOY_WEBHOOK_SECRET",
   gitRepositoryUrl: "https://github.com/syehsyoh-dokling/blockchain",
   dockerRegistryUrl: "https://registry-1.docker.io/v2/",
-  rateLimitPerMinute: "60",
+  rateLimitPerMinute: "300",
   auditRetentionDays: "365",
   queueConcurrency: "8",
   adminEmail: "admin@danandad.com",
@@ -332,7 +332,7 @@ const DEFAULT_RUNTIME_CONFIG: RuntimeConfig = {
   remediationPrompt: "Suggest minimal secure patches and regression tests. Prefer established library patterns over custom security code.",
 };
 
-const RUNTIME_CONFIG_VERSION = "2026-05-production-domain-link";
+const RUNTIME_CONFIG_VERSION = "2026-05-public-label-cleanup";
 
 const TASK_READY_FIELDS: Partial<Record<keyof RuntimeConfig, string>> = {
   backendApiUrl: "API backend / upload / queue",
@@ -401,7 +401,7 @@ const SETTINGS_GROUPS: Array<{
   },
   {
     category: "Secrets & Credentials",
-    title: "APP1 Service Providers",
+    title: "Sentra Core Service Providers",
     fields: [
       { key: "midtransBaseUrl", label: "Midtrans Sandbox URL", placeholder: "https://api.sandbox.midtrans.com" },
       { key: "midtransServerKey", label: "Midtrans Server Key", placeholder: "sandbox server key", secret: true },
@@ -648,7 +648,7 @@ function utcTime() {
 }
 
 function isPlaceholder(value: string) {
-  return value.startsWith("SET_IN_") || value.includes("replace-with");
+  return value.startsWith("SET_IN_") || value.includes("replace-with") || value === "demo-admin-token";
 }
 
 function getAdminHeaders(config: RuntimeConfig): Record<string, string> {
@@ -857,11 +857,10 @@ export default function AdminOperationsCenter() {
     };
   }, [refreshBackendState]);
 
+  const hasAdminRealtimeToken = Boolean(runtimeConfig.adminBootstrapToken && !isPlaceholder(runtimeConfig.adminBootstrapToken));
+
   useEffect(() => {
-    if (!runtimeConfig.adminBootstrapToken || isPlaceholder(runtimeConfig.adminBootstrapToken)) {
-      setStreamStatus("fallback");
-      return;
-    }
+    if (!hasAdminRealtimeToken) return;
 
     const cleanBaseUrl = runtimeConfig.backendApiUrl.replace(/\/$/, "");
     const streamUrl = new URL(`${cleanBaseUrl}/admin/realtime-stream`);
@@ -882,7 +881,7 @@ export default function AdminOperationsCenter() {
     };
 
     return () => source.close();
-  }, [runtimeConfig.backendApiUrl, runtimeConfig.adminBootstrapToken]);
+  }, [hasAdminRealtimeToken, runtimeConfig.backendApiUrl, runtimeConfig.adminBootstrapToken]);
 
   const metrics = adminState?.metrics;
   const pipeline = adminState?.pipeline;

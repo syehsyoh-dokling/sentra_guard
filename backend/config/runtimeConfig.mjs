@@ -69,7 +69,7 @@ export const runtimeConfig = {
 
   queueConcurrency: Number(process.env.QUEUE_CONCURRENCY || 4),
   auditRetentionDays: Number(process.env.AUDIT_RETENTION_DAYS || 365),
-  rateLimitPerMinute: Number(process.env.RATE_LIMIT_PER_MINUTE || 60),
+  rateLimitPerMinute: Number(process.env.RATE_LIMIT_PER_MINUTE || 300),
 
   hardRulesPrompt: process.env.HARD_RULES_PROMPT || "Reject unverifiable claims, require evidence from static detectors, and never mark a finding closed without a reproducible reason.",
   triagePrompt: process.env.TRIAGE_PROMPT || "Classify findings by exploitability, affected funds, user impact, and chain-specific risk.",

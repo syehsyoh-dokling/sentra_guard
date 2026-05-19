@@ -75,6 +75,8 @@ export function setResponseStatus(res, statusCode) {
 }
 
 export function isRateLimited(req, res) {
+  if (req.method === "OPTIONS") return false;
+
   const limit = Number(runtimeConfig.rateLimitPerMinute || 60);
   const now = Date.now();
   const minute = Math.floor(now / 60000);

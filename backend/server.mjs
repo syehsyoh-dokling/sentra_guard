@@ -327,9 +327,9 @@ const server = http.createServer(async (req, res) => {
         const job = await createAuditJob({
           externalSource: "sentracore-core-backend",
           externalId: String(coreJob.id),
-          app1JobId: String(coreJob.id),
+          coreJobId: String(coreJob.id),
           chain: payload.blockchain || payload.chain || "ethereum",
-          target: payload.contract_name || payload.target || `APP1-${String(coreJob.id).slice(0, 8)}`,
+          target: payload.contract_name || payload.target || `SentraCore-${String(coreJob.id).slice(0, 8)}`,
           sourceType: payload.source_type || "solidity",
           priority: String(coreJob.priority || "normal").toLowerCase(),
           sourceCode: payload.source_code || payload.sourceCode
@@ -342,7 +342,7 @@ const server = http.createServer(async (req, res) => {
         imported: imported.length
       });
       sendJson(res, 202, {
-        message: "Core audit jobs imported into APP2 queue",
+        message: "Sentra Core audit jobs imported into SentraGuard queue",
         requested: limit,
         imported: imported.length,
         jobs: imported
