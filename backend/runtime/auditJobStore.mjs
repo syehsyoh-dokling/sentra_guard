@@ -18,6 +18,7 @@ import {
 import { recordJobProgress, getJobProgress } from "./progressHub.mjs";
 import { getStorageAdapterStatus, storeAuditArtifact } from "../storage/artifactStorage.mjs";
 import { getCoreBackendSummary } from "../integrations/coreBackendAdapter.mjs";
+import { notifyCoreJobStatus } from "../integrations/coreStatusNotifier.mjs";
 import { recordPipelineEvent, recordSystemEvent, recordWorkerHeartbeat } from "./operationalTelemetry.mjs";
 
 const jobs = new Map();
@@ -93,7 +94,13 @@ export async function createAuditJob(input = {}) {
   });
   await Promise.all([
     enqueueAuditJob(job),
-    saveAuditJobSnapshot(job)
+    saveAuditJobSnapshot(job),
+    notifyCoreJobStatus(job, "QUEUED", {
+      chain: job.chain,
+      target: job.target,
+      priority: job.priority,
+      createdAt: job.createdAt
+    })
   ]);
   return structuredClone(job);
 }
@@ -177,6 +184,11 @@ export async function processAuditJob(id, options = {}) {
   await saveAuditEventSnapshot(id, processing.progress);
   await markAuditJobProcessing(processing);
   await saveAuditJobSnapshot(processing);
+  await notifyCoreJobStatus(processing, "PROCESSING", {
+    stage: processing.progress.stage,
+    percent: processing.progress.percent,
+    updatedAt: processing.updatedAt
+  });
 
   let result;
 
@@ -196,7 +208,11 @@ export async function processAuditJob(id, options = {}) {
     recordSystemEvent({ lvl: "err", msg: `Audit job failed: ${failed.id} - ${failed.error}`, jobId: failed.id });
     await Promise.all([
       markAuditJobFailed(failed, failed.error),
-      saveAuditJobSnapshot(failed)
+      saveAuditJobSnapshot(failed),
+      notifyCoreJobStatus(failed, "FAILED", {
+        error: failed.error,
+        updatedAt: failed.updatedAt
+      })
     ]);
     throw error;
   }
@@ -256,7 +272,14 @@ export async function processAuditJob(id, options = {}) {
     markAuditJobCompleted(completed),
     saveAuditJobSnapshot(completed),
     saveAuditFindingsSnapshot(id, completed.findings || []),
-    saveAuditReportSnapshot(reports.get(reportKey), id)
+    saveAuditReportSnapshot(reports.get(reportKey), id),
+    notifyCoreJobStatus(completed, "COMPLETED", {
+      findings: completed.findings?.length || 0,
+      reportUrl: completed.reportUrl,
+      reportKey: completed.reportKey,
+      durationMs: completed.durationMs || null,
+      completedAt: completed.completedAt || new Date().toISOString()
+    })
   ]);
 
   const queueIndex = queue.indexOf(id);
