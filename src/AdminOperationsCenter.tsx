@@ -893,6 +893,9 @@ export default function AdminOperationsCenter() {
   const cicd = adminState?.cicd ?? [];
   const logs = adminState?.logs ?? [];
   const chains = adminState?.chains ?? [];
+  const criticalVulns = metrics?.criticalVulns ?? 0;
+  const findingTone = criticalVulns > 0 ? "var(--crit)" : "var(--warn)";
+  const findingSubMain = criticalVulns > 0 ? `${criticalVulns} CRITICAL` : "0 CRITICAL";
   const getSettingFieldState = (key: keyof RuntimeConfig) => {
     const value = runtimeConfig[key];
     const task = TASK_READY_FIELDS[key];
@@ -1138,7 +1141,7 @@ export default function AdminOperationsCenter() {
             <Kpi label="Audits / 24h" value={String(metrics?.audits24h ?? 0)} subMain="Realtime" subText="from live telemetry" color="var(--ok)" />
             <Kpi label="Active Workers" value={`${metrics?.activeWorkers ?? 0}/${metrics?.maxWorkers ?? 0}`} subMain="Worker fleet" color="var(--warn)" />
             <Kpi label="Queue Depth" value={String(metrics?.queueDepth ?? 0)} subMain="SentraGuard Redis" subText={backendMetrics?.queueMode ?? "offline"} color="var(--warn)" />
-            <Kpi label="Vulns Detected" value={String(metrics?.vulnsDetected ?? 0)} subMain={`${metrics?.criticalVulns ?? 0} CRITICAL`} subText="today" color="var(--crit)" />
+            <Kpi label="Findings Detected" value={String(metrics?.vulnsDetected ?? 0)} subMain={findingSubMain} subText="from processed jobs" color={findingTone} />
             <Kpi label="Avg Audit Time" value={`${metrics?.avgAuditTimeSec ?? 0}s`} subMain="Pipeline" subText="throughput" color="var(--info)" />
             <Kpi label="AI Accuracy" value={`${metrics?.aiAccuracy ?? 0}%`} subMain="LLM triage" subText={backendMetrics?.aiAnalysis ?? "offline"} color="var(--ai)" />
           </div>
