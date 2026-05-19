@@ -513,6 +513,40 @@ const SETTINGS_GROUPS: Array<{
   },
 ];
 
+function isLocalDevUrl(value: string) {
+  return /^https?:\/\/(127\.0\.0\.1|localhost)(:|\/|$)/.test(value);
+}
+
+function normalizeProductionRuntimeConfig(config: RuntimeConfig, defaults: RuntimeConfig) {
+  if (window.location.hostname !== "sentraguard.danandad.com") {
+    return config;
+  }
+
+  const next = { ...config };
+
+  if (isLocalDevUrl(next.backendApiUrl)) {
+    next.backendApiUrl = defaults.backendApiUrl;
+  }
+
+  if (isLocalDevUrl(next.coreBackendUrl)) {
+    next.coreBackendUrl = defaults.coreBackendUrl;
+  }
+
+  if (isLocalDevUrl(next.detectorRulesUrl)) {
+    next.detectorRulesUrl = defaults.detectorRulesUrl;
+  }
+
+  if (isLocalDevUrl(next.realtimeStreamUrl)) {
+    next.realtimeStreamUrl = defaults.realtimeStreamUrl;
+  }
+
+  if (isLocalDevUrl(next.observabilityUrl)) {
+    next.observabilityUrl = defaults.observabilityUrl;
+  }
+
+  return next;
+}
+
 function loadRuntimeConfig() {
   const defaults = getRuntimeDefaults();
   const raw = localStorage.getItem("danandadRuntimeConfig");
@@ -536,9 +570,11 @@ function loadRuntimeConfig() {
       }
     }
 
-    localStorage.setItem("danandadRuntimeConfig", JSON.stringify(next));
+    const normalized = normalizeProductionRuntimeConfig(next, defaults);
+
+    localStorage.setItem("danandadRuntimeConfig", JSON.stringify(normalized));
     localStorage.setItem("danandadRuntimeConfigVersion", RUNTIME_CONFIG_VERSION);
-    return next;
+    return normalized;
   } catch {
     localStorage.setItem("danandadRuntimeConfig", JSON.stringify(defaults));
     localStorage.setItem("danandadRuntimeConfigVersion", RUNTIME_CONFIG_VERSION);
