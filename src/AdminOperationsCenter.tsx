@@ -332,7 +332,7 @@ const DEFAULT_RUNTIME_CONFIG: RuntimeConfig = {
   remediationPrompt: "Suggest minimal secure patches and regression tests. Prefer established library patterns over custom security code.",
 };
 
-const RUNTIME_CONFIG_VERSION = "2026-05-network-indexer-link";
+const RUNTIME_CONFIG_VERSION = "2026-05-production-domain-link";
 
 const TASK_READY_FIELDS: Partial<Record<keyof RuntimeConfig, string>> = {
   backendApiUrl: "API backend / upload / queue",
@@ -548,9 +548,15 @@ function loadRuntimeConfig() {
 
 function getRuntimeDefaults(): RuntimeConfig {
   const publicAppUrl = window.location.origin || DEFAULT_RUNTIME_CONFIG.publicAppUrl;
-  const backendApiUrl = "http://127.0.0.1:8787";
+  const isProductionHost = window.location.hostname === "sentraguard.danandad.com";
+  const backendApiUrl = isProductionHost ? "https://api-sentraguard.danandad.com" : "http://127.0.0.1:8787";
+  const coreBackendUrl = isProductionHost ? "https://api-sentracore.danandad.com" : "http://127.0.0.1:4000";
   const allowedOrigins = Array.from(new Set([
     publicAppUrl,
+    "https://sentraguard.danandad.com",
+    "https://sentracore.danandad.com",
+    "https://api-sentraguard.danandad.com",
+    "https://api-sentracore.danandad.com",
     "http://127.0.0.1:8080",
     "http://localhost:8080",
     "http://127.0.0.1:5173",
@@ -561,7 +567,7 @@ function getRuntimeDefaults(): RuntimeConfig {
     ...DEFAULT_RUNTIME_CONFIG,
     publicAppUrl,
     backendApiUrl,
-    coreBackendUrl: "http://127.0.0.1:4000",
+    coreBackendUrl,
     allowedOrigins,
     detectorRulesUrl: `${backendApiUrl}/security/detector-rules`,
     realtimeStreamUrl: `${backendApiUrl}/admin/realtime-state`,
