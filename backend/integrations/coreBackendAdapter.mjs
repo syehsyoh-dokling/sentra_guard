@@ -152,6 +152,11 @@ export async function getCoreBackendSummary() {
   }
 }
 
+export async function fetchCoreAuditJobs() {
+  const payload = await fetchJson("/api/v1/audit-jobs");
+  return asArray(payload);
+}
+
 export function buildCoreDashboardState(baseState, summary) {
   const counts = summary.counts || {};
   const queuedJobs = counts.queuedJobs || 0;

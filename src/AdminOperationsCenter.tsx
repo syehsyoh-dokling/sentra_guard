@@ -693,9 +693,11 @@ export default function AdminOperationsCenter() {
         fetchBackendJson<{ jobs: BackendJob[] }>(runtimeConfig.backendApiUrl, "/audit/jobs"),
         fetchBackendJson<ReadinessResponse>(runtimeConfig.backendApiUrl, "/readiness"),
       ]);
-      const realtimeState = await fetchBackendJson<AdminRealtimeState>(runtimeConfig.backendApiUrl, "/admin/realtime-state", {
-        headers: getAdminHeaders(runtimeConfig),
-      }).catch(() => null);
+      const realtimeState = runtimeConfig.adminBootstrapToken && !isPlaceholder(runtimeConfig.adminBootstrapToken)
+        ? await fetchBackendJson<AdminRealtimeState>(runtimeConfig.backendApiUrl, "/admin/realtime-state", {
+          headers: getAdminHeaders(runtimeConfig),
+        }).catch(() => null)
+        : null;
       const coreDashboard = await fetchBackendJson<{ summary: CoreBackendSummary; state: AdminRealtimeState }>(
         runtimeConfig.backendApiUrl,
         "/integrations/core-backend/dashboard-state",
@@ -846,7 +848,7 @@ export default function AdminOperationsCenter() {
 
     const backendTimer = window.setInterval(() => {
       void refreshBackendState();
-    }, 2000);
+    }, 5000);
 
     return () => {
       window.clearInterval(clockTimer);
@@ -856,11 +858,14 @@ export default function AdminOperationsCenter() {
   }, [refreshBackendState]);
 
   useEffect(() => {
+    if (!runtimeConfig.adminBootstrapToken || isPlaceholder(runtimeConfig.adminBootstrapToken)) {
+      setStreamStatus("fallback");
+      return;
+    }
+
     const cleanBaseUrl = runtimeConfig.backendApiUrl.replace(/\/$/, "");
     const streamUrl = new URL(`${cleanBaseUrl}/admin/realtime-stream`);
-    if (runtimeConfig.adminBootstrapToken && !isPlaceholder(runtimeConfig.adminBootstrapToken)) {
-      streamUrl.searchParams.set("adminToken", runtimeConfig.adminBootstrapToken);
-    }
+    streamUrl.searchParams.set("adminToken", runtimeConfig.adminBootstrapToken);
     const source = new EventSource(streamUrl.toString());
 
     source.addEventListener("dashboard-state", (event) => {
@@ -877,7 +882,7 @@ export default function AdminOperationsCenter() {
     };
 
     return () => source.close();
-  }, [runtimeConfig.backendApiUrl]);
+  }, [runtimeConfig.backendApiUrl, runtimeConfig.adminBootstrapToken]);
 
   const metrics = adminState?.metrics;
   const pipeline = adminState?.pipeline;

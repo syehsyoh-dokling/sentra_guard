@@ -9,6 +9,7 @@ import {
 import {
   dequeueAuditJob,
   enqueueAuditJob,
+  getRedisQueueMetrics,
   getRedisQueueStatus,
   markAuditJobCompleted,
   markAuditJobFailed,
@@ -57,9 +58,17 @@ function normalizeChain(chain) {
 }
 
 export async function createAuditJob(input = {}) {
+  const externalId = input.externalId || input.coreJobId || input.app1JobId || null;
+  if (externalId) {
+    const existing = Array.from(jobs.values()).find((job) => job.externalId === externalId);
+    if (existing) return getAuditJob(existing.id);
+  }
+
   const now = new Date().toISOString();
   const job = {
     id: `audit-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+    externalSource: input.externalSource || null,
+    externalId,
     status: "queued",
     chain: normalizeChain(input.chain),
     target: input.target || input.contractName || input.contractAddress || "DemoVault",
@@ -289,16 +298,20 @@ export async function getAuditMetrics() {
   const processing = all.filter((job) => job.status === "processing");
   const failed = all.filter((job) => job.status === "failed");
   const totalFindings = all.reduce((sum, job) => sum + (job.findings?.length || 0), 0);
-  const coreBackend = await getCoreBackendSummary();
+  const [coreBackend, redisMetrics] = await Promise.all([
+    getCoreBackendSummary(),
+    getRedisQueueMetrics()
+  ]);
+  const redisQueued = redisMetrics.totals?.queued || 0;
 
   return {
     totalJobs: all.length + (coreBackend.counts?.auditJobs || 0),
-    queuedJobs: queued.length + (coreBackend.counts?.queuedJobs || 0),
+    queuedJobs: queued.length,
     processingJobs: processing.length,
     completedJobs: completed.length,
     failedJobs: failed.length,
     totalFindings,
-    queueDepth: queue.length + (coreBackend.counts?.queuedJobs || 0),
+    queueDepth: Math.max(queue.length, redisQueued),
     workerMode: "node-runtime-ready",
     queueMode: getRedisQueueStatus().mode,
     databaseMode: getPostgresAdapterStatus().mode,

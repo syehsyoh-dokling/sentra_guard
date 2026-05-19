@@ -19,6 +19,7 @@ import {
 } from "./config/runtimeConfig.mjs";
 import {
   buildCoreDashboardState,
+  fetchCoreAuditJobs,
   getCoreBackendSummary
 } from "./integrations/coreBackendAdapter.mjs";
 import {
@@ -308,6 +309,43 @@ const server = http.createServer(async (req, res) => {
         message: "Audit job created",
         job,
         nextStep: `POST /audit/jobs/${job.id}/process`
+      });
+      return;
+    }
+
+    if (req.method === "POST" && pathname === "/integrations/core-backend/import-audit-jobs") {
+      const body = await readJsonBody(req);
+      const limit = Math.max(1, Math.min(Number(body.limit || 25), 50));
+      const coreJobs = await fetchCoreAuditJobs();
+      const candidates = coreJobs
+        .filter((job) => ["CREATED", "QUEUED", "READY_TO_TRANSFER"].includes(String(job.status || "").toUpperCase()))
+        .slice(0, limit);
+      const imported = [];
+
+      for (const coreJob of candidates) {
+        const payload = coreJob.payload_json || coreJob.payload || {};
+        const job = await createAuditJob({
+          externalSource: "sentracore-core-backend",
+          externalId: String(coreJob.id),
+          app1JobId: String(coreJob.id),
+          chain: payload.blockchain || payload.chain || "ethereum",
+          target: payload.contract_name || payload.target || `APP1-${String(coreJob.id).slice(0, 8)}`,
+          sourceType: payload.source_type || "solidity",
+          priority: String(coreJob.priority || "normal").toLowerCase(),
+          sourceCode: payload.source_code || payload.sourceCode
+        });
+        imported.push(job);
+      }
+
+      broadcastRealtimeEvent("audit-jobs-imported", {
+        source: "sentracore-core-backend",
+        imported: imported.length
+      });
+      sendJson(res, 202, {
+        message: "Core audit jobs imported into APP2 queue",
+        requested: limit,
+        imported: imported.length,
+        jobs: imported
       });
       return;
     }
