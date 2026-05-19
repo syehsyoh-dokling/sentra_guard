@@ -315,7 +315,7 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "POST" && pathname === "/integrations/core-backend/import-audit-jobs") {
       const body = await readJsonBody(req);
-      const limit = Math.max(1, Math.min(Number(body.limit || 25), 50));
+      const limit = Math.max(1, Math.min(Number(body.limit || 25), 200));
       const coreJobs = await fetchCoreAuditJobs();
       const candidates = coreJobs
         .filter((job) => ["CREATED", "QUEUED", "READY_TO_TRANSFER"].includes(String(job.status || "").toUpperCase()))
