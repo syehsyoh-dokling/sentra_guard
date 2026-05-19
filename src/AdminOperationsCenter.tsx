@@ -221,6 +221,20 @@ type RuntimeConfig = {
   jwtSecret: string;
   sessionEncryptionKey: string;
   adminBootstrapToken: string;
+  midtransBaseUrl: string;
+  midtransServerKey: string;
+  midtransClientKey: string;
+  sumsubBaseUrl: string;
+  sumsubAppToken: string;
+  sumsubSecretKey: string;
+  resendBaseUrl: string;
+  resendApiKey: string;
+  resendFromEmail: string;
+  whatsappGraphBaseUrl: string;
+  whatsappAccessToken: string;
+  whatsappPhoneNumberId: string;
+  whatsappBusinessAccountId: string;
+  whatsappWebhookVerifyToken: string;
   aiProviderUrl: string;
   aiApiKey: string;
   aiOrgId: string;
@@ -232,6 +246,7 @@ type RuntimeConfig = {
   polygonRpcUrl: string;
   relayerPrivateKey: string;
   detectorRulesUrl: string;
+  storageEndpointUrl: string;
   storageBucketUrl: string;
   storageAccessKey: string;
   storageSecretKey: string;
@@ -268,6 +283,20 @@ const DEFAULT_RUNTIME_CONFIG: RuntimeConfig = {
   jwtSecret: "SET_IN_SERVER_ENV:JWT_SIGNING_SECRET",
   sessionEncryptionKey: "SET_IN_SERVER_ENV:SESSION_ENCRYPTION_KEY",
   adminBootstrapToken: "demo-admin-token",
+  midtransBaseUrl: "https://api.sandbox.midtrans.com",
+  midtransServerKey: "SET_IN_SERVER_ENV:MIDTRANS_SANDBOX_SERVER_KEY",
+  midtransClientKey: "SET_IN_SERVER_ENV:MIDTRANS_SANDBOX_CLIENT_KEY",
+  sumsubBaseUrl: "https://api.sumsub.com",
+  sumsubAppToken: "SET_IN_SERVER_ENV:SUMSUB_SANDBOX_APP_TOKEN",
+  sumsubSecretKey: "SET_IN_SERVER_ENV:SUMSUB_SANDBOX_SECRET_KEY",
+  resendBaseUrl: "https://api.resend.com",
+  resendApiKey: "SET_IN_SERVER_ENV:RESEND_API_KEY",
+  resendFromEmail: "audit@sentracore.test",
+  whatsappGraphBaseUrl: "https://graph.facebook.com",
+  whatsappAccessToken: "SET_IN_SERVER_ENV:WHATSAPP_TEST_ACCESS_TOKEN",
+  whatsappPhoneNumberId: "SET_IN_META_DEVELOPER:TEST_PHONE_NUMBER_ID",
+  whatsappBusinessAccountId: "SET_IN_META_DEVELOPER:TEST_WABA_ID",
+  whatsappWebhookVerifyToken: "SET_IN_SERVER_ENV:WHATSAPP_WEBHOOK_VERIFY_TOKEN",
   aiProviderUrl: "https://api.openai.com/v1",
   aiApiKey: "SET_IN_SERVER_ENV:OPENAI_API_KEY",
   aiOrgId: "SET_IN_SERVER_ENV:OPENAI_PROJECT_OR_ORG_ID",
@@ -279,6 +308,7 @@ const DEFAULT_RUNTIME_CONFIG: RuntimeConfig = {
   polygonRpcUrl: "https://polygon-amoy.drpc.org",
   relayerPrivateKey: "SET_IN_SERVER_ENV:RELAYER_PRIVATE_KEY",
   detectorRulesUrl: "http://localhost:8787/security/detector-rules",
+  storageEndpointUrl: "http://127.0.0.1:9000",
   storageBucketUrl: "s3://danandad-audit-reports/staging",
   storageAccessKey: "SET_IN_SERVER_ENV:S3_ACCESS_KEY_ID",
   storageSecretKey: "SET_IN_SERVER_ENV:S3_SECRET_ACCESS_KEY",
@@ -332,6 +362,11 @@ const TASK_READY_FIELDS: Partial<Record<keyof RuntimeConfig, string>> = {
   publicAppUrl: "Frontend domain",
   gitRepositoryUrl: "CI/CD source",
   dockerRegistryUrl: "Container registry",
+  midtransBaseUrl: "Midtrans sandbox payment",
+  sumsubBaseUrl: "Sumsub sandbox KYC",
+  resendBaseUrl: "Resend email API",
+  whatsappGraphBaseUrl: "WhatsApp Cloud API",
+  storageEndpointUrl: "S3-compatible endpoint",
 };
 
 const SETTINGS_GROUPS: Array<{
@@ -362,6 +397,26 @@ const SETTINGS_GROUPS: Array<{
       { key: "jwtSecret", label: "JWT Signing Secret", placeholder: "server-side JWT secret", secret: true },
       { key: "sessionEncryptionKey", label: "Session Encryption Key", placeholder: "server-side encryption key", secret: true },
       { key: "adminBootstrapToken", label: "Admin Bootstrap Token", placeholder: "one-time admin setup token", secret: true },
+    ],
+  },
+  {
+    category: "Secrets & Credentials",
+    title: "APP1 Service Providers",
+    fields: [
+      { key: "midtransBaseUrl", label: "Midtrans Sandbox URL", placeholder: "https://api.sandbox.midtrans.com" },
+      { key: "midtransServerKey", label: "Midtrans Server Key", placeholder: "sandbox server key", secret: true },
+      { key: "midtransClientKey", label: "Midtrans Client Key", placeholder: "sandbox client key", secret: true },
+      { key: "sumsubBaseUrl", label: "Sumsub Sandbox URL", placeholder: "https://api.sumsub.com" },
+      { key: "sumsubAppToken", label: "Sumsub App Token", placeholder: "sandbox app token", secret: true },
+      { key: "sumsubSecretKey", label: "Sumsub Secret Key", placeholder: "sandbox secret key", secret: true },
+      { key: "resendBaseUrl", label: "Resend API URL", placeholder: "https://api.resend.com" },
+      { key: "resendApiKey", label: "Resend API Key", placeholder: "email API key", secret: true },
+      { key: "resendFromEmail", label: "Resend From Email", placeholder: "audit@your-domain.test" },
+      { key: "whatsappGraphBaseUrl", label: "WhatsApp Graph API URL", placeholder: "https://graph.facebook.com" },
+      { key: "whatsappAccessToken", label: "WhatsApp Test Access Token", placeholder: "temporary or system user token", secret: true },
+      { key: "whatsappPhoneNumberId", label: "WhatsApp Phone Number ID", placeholder: "Meta test phone number id" },
+      { key: "whatsappBusinessAccountId", label: "WhatsApp Business Account ID", placeholder: "Meta WABA id" },
+      { key: "whatsappWebhookVerifyToken", label: "WhatsApp Webhook Verify Token", placeholder: "server-side webhook verify token", secret: true },
     ],
   },
   {
@@ -423,6 +478,7 @@ const SETTINGS_GROUPS: Array<{
     category: "Secrets & Credentials",
     title: "Storage",
     fields: [
+      { key: "storageEndpointUrl", label: "S3 / MinIO Endpoint URL", placeholder: "https://storage.example.com or http://127.0.0.1:9000" },
       { key: "storageBucketUrl", label: "Report Storage URL", placeholder: "s3://danandad-audit-reports/prod" },
       { key: "storageAccessKey", label: "Storage Access Key", placeholder: "S3 access key or provider id", secret: true },
       { key: "storageSecretKey", label: "Storage Secret Key", placeholder: "S3 secret key", secret: true },
@@ -833,7 +889,25 @@ export default function AdminOperationsCenter() {
         : { tone: "needs", label: "SECRET", task: "Input production AI key to switch from fallback" };
     }
 
-    if (key === "storageAccessKey" || key === "storageSecretKey" || key === "ipfsApiToken" || key === "authClientSecret" || key === "jwtSecret" || key === "sessionEncryptionKey" || key === "adminBootstrapToken" || key === "ciWebhookSecret" || key === "relayerPrivateKey" || key === "errorTrackingDsn") {
+    if (
+      key === "storageAccessKey" ||
+      key === "storageSecretKey" ||
+      key === "ipfsApiToken" ||
+      key === "authClientSecret" ||
+      key === "jwtSecret" ||
+      key === "sessionEncryptionKey" ||
+      key === "adminBootstrapToken" ||
+      key === "midtransServerKey" ||
+      key === "midtransClientKey" ||
+      key === "sumsubAppToken" ||
+      key === "sumsubSecretKey" ||
+      key === "resendApiKey" ||
+      key === "whatsappAccessToken" ||
+      key === "whatsappWebhookVerifyToken" ||
+      key === "ciWebhookSecret" ||
+      key === "relayerPrivateKey" ||
+      key === "errorTrackingDsn"
+    ) {
       return hasValue
         ? { tone: "connected", label: "SET", task: task || "Secret configured" }
         : { tone: "needs", label: "SECRET", task: task || "Input secret on server" };
