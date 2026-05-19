@@ -175,7 +175,7 @@ export function buildCoreDashboardState(baseState, summary) {
       audits24h: audits,
       activeWorkers: baseState.metrics.activeWorkers,
       maxWorkers: Math.max(baseState.metrics.maxWorkers, 1),
-      queueDepth: (baseState.metrics.queueDepth || 0) + queuedJobs,
+      queueDepth: baseState.metrics.queueDepth || 0,
       vulnsDetected: baseState.metrics.vulnsDetected,
       criticalVulns: baseState.metrics.criticalVulns,
       avgAuditTimeSec: baseState.metrics.avgAuditTimeSec,
@@ -187,11 +187,7 @@ export function buildCoreDashboardState(baseState, summary) {
       parse: (baseState.pipeline.parse || 0) + auditJobs,
       reportStore: (baseState.pipeline.reportStore || 0) + payments
     },
-    queues: [
-      { name: "sentracore:audit_jobs:created", depth: queuedJobs, cap: 80, proc: auditJobs, tone: queuedJobs > 10 ? "warn" : "ok" },
-      { name: "sentracore:sentraguard_transfer", depth: Math.max(0, auditJobs - (counts.transferredJobs || 0)), cap: 80, proc: counts.transferredJobs || 0, tone: "info" },
-      ...baseState.queues.slice(2)
-    ],
+    queues: baseState.queues,
     logs: [
       ...baseState.logs.slice(-20),
       {
